@@ -27,18 +27,18 @@ actor_rollout_ref:
   hybrid_engine: True
   model:
     path: ~/models/deepseek-llm-7b-chat
-    use_shm: False
+    use_shm: True
     external_lib: null
     override_config: { }
     enable_gradient_checkpointing: True
-    enable_activation_offload: False
+    enable_activation_offload: True
     use_remove_padding: False
     lora_rank: 0  # Set to positive value to enable LoRA (e.g., 32)
     lora_alpha: 16  # LoRA scaling factor
     target_modules: all-linear  # all-linear or [q_proj,k_proj,v_proj,o_proj,gate_proj,up_proj,down_proj]
-    use_liger: False
-    use_fused_kernels: False
-    trust_remote_code: False
+    use_liger: True
+    use_fused_kernels: True
+    trust_remote_code: True
   actor:
     strategy: fsdp  # [fsdp, fsdp2], This is for backward-compatibility
     ppo_mini_batch_size: 256
@@ -82,7 +82,7 @@ actor_rollout_ref:
       reshard_after_forward: True # only for fsdp2, [True, False, int between 1 and fsdp_size]
       fsdp_size: -1
   ref:
-    strategy: fsdp
+    strategy: fsdp2
     fsdp_config:
       param_offload: False
       reshard_after_forward: True # only for fsdp2, [True, False, int between 1 and fsdp_size]
@@ -121,7 +121,7 @@ actor_rollout_ref:
     log_prob_micro_batch_size_per_gpu: null
     log_prob_use_dynamic_bsz: ${actor_rollout_ref.actor.use_dynamic_bsz}
     log_prob_max_token_len_per_gpu: ${actor_rollout_ref.actor.ppo_max_token_len_per_gpu}
-    disable_log_stats: True
+    disable_log_stats: False
     enable_chunked_prefill: True # may get higher throughput when set to True. When activated, Please increase max_num_batched_tokens or decrease max_model_len.
     # for hf rollout
     do_sample: True
@@ -196,7 +196,7 @@ critic:
 
 reward_model:
   enable: False
-  strategy: fsdp
+  strategy: fsdp2
   model:
     input_tokenizer: ${actor_rollout_ref.model.path}  # set this to null if the chat template is identical
     path: ~/models/FsfairX-LLaMA3-RM-v0.1
